@@ -1,10 +1,13 @@
-all: kernel.elf kernel.dis kernel.bin
+all: kernel.elf kernel.dis kernel.syms kernel.bin
 
-kernel.elf: boot.o main.o
+kernel.elf: boot.o cache.o main.o
 	$(LD) -o $@ $^ -nostdlib -T kernel.ld
 
 kernel.dis: kernel.elf
 	$(OBJDUMP) -d $< > $@
+
+kernel.syms: kernel.elf
+	$(OBJDUMP) -t $< > $@
 
 kernel.bin: kernel.elf
 	$(OBJCOPY) -O binary $< $@
@@ -15,6 +18,6 @@ kernel.bin: kernel.elf
 %.o: %.S
 	$(CC) -c -o $@ $< -nostdlib
 
-install: kernel.elf kernel.dis kernel.bin
-	mkdir -pv $(out)
-	cp -v $^ $(out)
+install: kernel.elf kernel.dis kernel.syms kernel.bin
+	mkdir -pv $(out)/bin/
+	cp -v $^ $(out)/bin/

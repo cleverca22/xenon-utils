@@ -1,25 +1,74 @@
-#include <stdint.h>
+#include "main.h"
+#define UART_BASE 0xEA001000ULL
 
-#define UART_STATUS 0x80000200ea001018ULL
-#define UART_DATA 0x80000200ea001014ULL
-#define POST_ADDR 0x8000020000061008ULL
+void putch(uint8_t c) {
+  if (c == '\n')
+  putch('\r');
 
-#define REG64(addr) ((uint64_t*)(addr))
-#define BIT(bit) (1<<bit)
-
-void POST(uint8_t code) {
-  *REG64(POST_ADDR) = code << 56;
+  while (!((*REG32(UART_BASE+0x18)) & BIT(25)));
+  *REG32(UART_BASE+0x14) = (c << 24) & 0xFF000000;
 }
 
-void putch(unsigned char c) {
-  while (!(*REG64(UART_STATUS)) & BIT(25));
-  *REG64(UART_DATA) = (c << 24) & 0xFF000000;
+void init_uart() {
+  // Set UART to 115400, 8, N, 1
+  *REG32(UART_BASE+0x1C) = 0xE6010000;
 }
 
-int main() {
-  POST(0x42);
-  putch("A");
-  putch("B");
-  putch("C");
+void putstring(const char *c) {
+  while (*c)
+    putch(*c++);
+}
+
+int puts(const char *c) {
+  putstring(c);
+  putch('\n');
+  return 0;
+}
+
+void init_soc() {
+  void *soc_29 = (void*)0x30000;
+  void *soc_31 = (void*)0x40000;
+  void *soc_30 = (void*)0x60000;
+  void *soc_03 = (void*)0x48000;
+  uint64_t v;
+
+  v = ld(soc_31 + 0x3000);
+  v &= (((uint64_t)-0x1A) << 42) | (((uint64_t)-0x1A) >> 22);
+  v |= 3ULL << 43;
+  std(soc_31 + 0x3000, v);
+
+  std(soc_31 + 0x3110, (((uint64_t)-2) << 46) | (((uint64_t)-2) >> 18));
+
+  std(soc_29 + 0x3110, (((uint64_t)-2) << 41) | (((uint64_t)-2) >> 23));
+
+  v = ld(soc_30 + 0x700);
+  v |= (uint64_t)7 << 53;
+  std(soc_30 + 0x700, v);
+
+  v = ld(soc_30 + 0x840);
+  v &= (((uint64_t)-2) << 46)|(((uint64_t)-2) >> 18);
+  v |= (uint64_t)0x0F << 42;
+  std(soc_30 + 0x840, v);
+
+  v = ld(soc_31);
+  v &= ((uint64_t)0xFFFFFFFFFFFC7FC0 << 46) | ((uint64_t)0xFFFFFFFFFFFC7FC0 >> 18);
+  v |= (uint64_t)0x4009 << 48;
+  std(soc_31, v);
+
+  v = ld(soc_03);
+  v &= (((uint64_t)-0x30) << 57) | (((uint64_t)-0x30) >> 7);
+  v |= (uint64_t)0x401 << 46;
+  std(soc_03, v);
+
+  v = ld(soc_29);
+  v |= (uint64_t)1 << 62;
+  std(soc_29, v);
+}
+
+int main() {  
+  init_soc();
+  init_uart();
+  putch('.');
+  putstring("Hello, world!");
   return 0;
 }
