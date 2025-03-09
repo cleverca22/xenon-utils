@@ -14,9 +14,26 @@
         "type": "indirect"
       }
     },
+    "nixpkgs-ppc": {
+      "locked": {
+        "lastModified": 1722820544,
+        "narHash": "sha256-gY7VS+RX8XZf72vKCzE7BsSqB/Kwv3HMu63zZ4p4OcE=",
+        "owner": "cleverca22",
+        "repo": "nixpkgs",
+        "rev": "0f0e39b3f992e33ed0bd7aecd37bf5d0702e7ceb",
+        "type": "github"
+      },
+      "original": {
+        "owner": "cleverca22",
+        "ref": "ugly-test",
+        "repo": "nixpkgs",
+        "type": "github"
+      }
+    },
     "root": {
       "inputs": {
         "nixpkgs": "nixpkgs",
+        "nixpkgs-ppc": "nixpkgs-ppc",
         "utils": "utils"
       }
     },
