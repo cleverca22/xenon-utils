@@ -65,9 +65,10 @@ void init_soc() {
   std(soc_29, v);
 }
 
-int main() {  
-  init_soc();
+int main() {
   init_uart();
+  puts("booted");
+  //init_soc();
   putch('.');
   putstring("Hello, world!");
   return 0;

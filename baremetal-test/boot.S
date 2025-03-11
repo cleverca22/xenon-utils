@@ -1,7 +1,10 @@
 .section .text.boot
 
-.globl _start
+.global _start
 _start:
+  lis %r1, __stack_bottom@h
+  ori %r1, %r1, __stack_bottom@l
+
   # Stop the linker from trying to shift main by 8 (why?????)
   lis %r3, main@h
   ori %r3, %r3, main@l
