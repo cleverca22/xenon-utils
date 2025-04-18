@@ -27,6 +27,7 @@
     packages = {
       nand-explorer = pkgs.callPackage ./nand-explorer.nix {};
       baremetal-test = pkgs.callPackage ./baremetal-test {};
+      elf-converter = pkgs.callPackage ./elf-converter {};
     };
   }));
 }
